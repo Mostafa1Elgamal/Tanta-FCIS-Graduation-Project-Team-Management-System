@@ -23,7 +23,7 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select('-isBanned -bannedAt');
     if (!user) {
       const error = new Error('No user found with that ID');
       error.statusCode = 404;
@@ -43,7 +43,7 @@ exports.updateProfile = async (req, res, next) => {
   try {
     // 1) Filter out unwanted fields that are not allowed to be updated
     const { name, phoneNumber, department, tracks, skills, bio } = req.body;
-const filteredBody = { name, phoneNumber, department, tracks, skills, bio };
+    const filteredBody = { name, phoneNumber, department, tracks, skills, bio };
 
     // 2) Update user document
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
