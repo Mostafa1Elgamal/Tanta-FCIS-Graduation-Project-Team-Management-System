@@ -8,7 +8,6 @@ import {
   ArrowUpRight, 
   ArrowDownLeft, 
   Clock, 
-  TeamIcons, 
   User as UserIcon,
   MessageSquare
 } from 'lucide-react';
