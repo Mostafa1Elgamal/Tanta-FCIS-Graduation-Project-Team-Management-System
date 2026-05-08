@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: var(--github-blue);
+  --color-success: var(--github-green);
+  --color-danger: var(--github-red);
+  --color-warning: var(--github-orange);
+  --color-border: var(--github-border);
+  --color-background: var(--github-bg);
+  --color-foreground: var(--github-fg);
+  --color-card: var(--github-card-bg);
+  --color-sidebar: var(--github-sidebar-bg);
+  
+  --radius-lg: 6px;
+  --radius-md: 4px;
+  --radius-sm: 2px;
+}
+
+:root {
+  /* GitHub Light Theme Colors */
+  --github-blue: #0969da;
+  --github-green: #1f883d;
+  --github-red: #cf222e;
+  --github-orange: #d4600a;
+  --github-border: #d0d7de;
+  --github-bg: #ffffff;
+  --github-fg: #1f2328;
+  --github-card-bg: #ffffff;
+  --github-sidebar-bg: #f6f8fa;
+  --github-subtle: #f6f8fa;
+  --github-link: #0969da;
+
+  --background: var(--github-bg);
+  --foreground: var(--github-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* GitHub Dark Theme Colors */
+    --github-blue: #2f81f7;
+    --github-green: #238636;
+    --github-red: #da3633;
+    --github-orange: #d76027;
+    --github-border: #30363d;
+    --github-bg: #0d1117;
+    --github-fg: #e6edf3;
+    --github-card-bg: #161b22;
+    --github-sidebar-bg: #010409;
+    --github-subtle: #161b22;
+    --github-link: #4493f8;
+
+    --background: var(--github-bg);
+    --foreground: var(--github-fg);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* GitHub Typography and Spacing */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.card-shadow {
+  box-shadow: 0 1px 0 rgba(31,35,40,0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card-shadow {
+    box-shadow: none;
+  }
+}
+
+/* Custom Scrollbar for GitHub Feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--github-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--github-border);
+  border-radius: 10px;
+  border: 2px solid var(--github-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b949e;
+}
