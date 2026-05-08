@@ -19,10 +19,10 @@ const teamSchema = z.object({
     .max(30, 'Title cannot exceed 30 characters')
     .regex(/^[a-zA-Z0-9 _]+$/, 'Title can only contain letters, numbers, spaces, and underscores'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  totalSize: z.coerce.number().min(2).max(10),
+  totalSize: z.number().min(2).max(10),
   requiredTracks: z.array(z.object({
     track: z.string(),
-    neededCount: z.number().default(1)
+    neededCount: z.number()
   })).min(1, 'At least one required track is needed'),
 });
 
@@ -112,7 +112,7 @@ export default function CreateTeamPage() {
                 min="2"
                 max="10"
                 className="flex-1 h-1.5 bg-[#30363d] rounded-lg appearance-none cursor-pointer accent-[#238636]"
-                {...register('totalSize')}
+                {...register('totalSize', { valueAsNumber: true })}
               />
               <span className="flex items-center justify-center h-8 w-10 rounded-md bg-[#161b22] text-[#c9d1d9] font-bold text-sm border border-border">
                 {watch('totalSize')}

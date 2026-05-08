@@ -20,10 +20,10 @@ const teamSchema = z.object({
     .max(30, 'Title cannot exceed 30 characters')
     .regex(/^[a-zA-Z0-9 _]+$/, 'Title can only contain letters, numbers, spaces, and underscores'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  totalSize: z.coerce.number().min(2).max(10),
+  totalSize: z.number().min(2).max(10),
   requiredTracks: z.array(z.object({
     track: z.string(),
-    neededCount: z.number().default(1)
+    neededCount: z.number()
   })).min(1, 'At least one required track is needed'),
 });
 
@@ -170,7 +170,7 @@ export default function EditTeamPage() {
                     min="2"
                     max="10"
                     className="flex-1 h-1.5 bg-[#30363d] rounded-lg appearance-none cursor-pointer accent-[#238636]"
-                    {...register('totalSize')}
+                    {...register('totalSize', { valueAsNumber: true })}
                   />
                   <span className="flex items-center justify-center h-8 w-10 rounded-md bg-[#161b22] text-[#c9d1d9] font-bold text-sm border border-border">
                     {watch('totalSize')}
@@ -231,26 +231,36 @@ export default function EditTeamPage() {
             <div className="space-y-2">
               <h4 className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Current Contributors</h4>
               <div className="grid gap-2">
-                {team?.members.map((member: any) => (
-                  <div key={member.userId._id} className="flex items-center justify-between p-3 rounded-md border border-border bg-[#161b22]">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-[#30363d] text-[#c9d1d9] flex items-center justify-center font-bold text-xs">
-                        {member.userId.name.charAt(0)}
+                {team?.members.map((member: any) => {
+                  const memberId = typeof member.userId === 'string' ? member.userId : member.userId?._id;
+                  const leaderId = typeof team.leaderId === 'string' ? team.leaderId : team.leaderId?._id;
+                  const isLeader = memberId === leaderId;
+                  
+                  return (
+                    <div key={memberId} className="flex items-center justify-between p-3 rounded-md border border-border bg-[#161b22]">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-[#30363d] text-[#c9d1d9] flex items-center justify-center font-bold text-xs">
+                          {typeof member.userId === 'object' ? member.userId.name.charAt(0) : 'U'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[#c9d1d9]">
+                            {typeof member.userId === 'object' ? member.userId.name : 'Team Member'}
+                          </p>
+                          <p className="text-[10px] text-[#8b949e]">
+                            {typeof member.userId === 'object' ? member.userId.phoneNumber : 'N/A'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-[#c9d1d9]">{member.userId.name}</p>
-                        <p className="text-[10px] text-[#8b949e]">{member.userId.phoneNumber}</p>
-                      </div>
+                      {isLeader ? (
+                        <Badge variant="outline" className="text-[8px] border-[#d29922] text-[#d29922]">LEADER</Badge>
+                      ) : (
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#8b949e] hover:text-[#f85149]">
+                          <XCircle size={16} />
+                        </Button>
+                      )}
                     </div>
-                    {member.userId._id === team.leaderId._id ? (
-                      <Badge variant="outline" className="text-[8px] border-[#d29922] text-[#d29922]">LEADER</Badge>
-                    ) : (
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#8b949e] hover:text-[#f85149]">
-                        <XCircle size={16} />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -85,7 +85,7 @@ export function NotificationDropdown() {
                     {notification.type === 'TEAM_SWITCH_REQUEST' && !notification.isRead && (
                       <div className="flex gap-2 mt-2">
                         <Button 
-                          size="xs" 
+                          size="sm" 
                           variant="primary"
                           className="flex-1 text-[10px] h-6"
                           onClick={async (e) => {
@@ -104,7 +104,7 @@ export function NotificationDropdown() {
                           Join
                         </Button>
                         <Button 
-                          size="xs" 
+                          size="sm" 
                           variant="secondary" 
                           className="flex-1 text-[10px] h-6"
                           onClick={async (e) => {
