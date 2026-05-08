@@ -51,9 +51,12 @@ export default function RequestsPage() {
     },
   });
 
-  const receivedRequests = requests?.filter(r => 
-    (typeof r.receiverId === 'object' ? (r.receiverId as any)._id : r.receiverId) === user?._id
-  ) || [];
+  const receivedRequests = requests?.filter(r => {
+    const isReceiver = (typeof r.receiverId === 'object' ? (r.receiverId as any)._id : r.receiverId) === user?._id;
+    const isTeamLeader = typeof r.teamId === 'object' && (r.teamId as any).leaderId === user?._id;
+    // For applications, the team leader is the implicit receiver
+    return isReceiver || (r.type === 'APPLICATION' && isTeamLeader);
+  }) || [];
 
   const sentRequests = requests?.filter(r => 
     (typeof r.senderId === 'object' ? (r.senderId as any)._id : r.senderId) === user?._id
@@ -160,57 +163,136 @@ export default function RequestsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Requests & Invitations</h1>
-        <p className="text-slate-500">Manage your incoming and outgoing requests.</p>
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="border-b border-border pb-6">
+        <h1 className="text-2xl font-semibold text-[#c9d1d9]">Collaboration Requests</h1>
+        <p className="text-sm text-[#8b949e]">Manage incoming invitations and outgoing applications.</p>
       </div>
 
-      <div className="flex border-b border-slate-200">
+      <div className="flex border-b border-border">
         <button
-          className={`px-6 py-3 text-sm font-semibold transition-all relative ${
-            activeTab === 'received' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+          className={`px-4 py-2 text-sm font-medium transition-all relative ${
+            activeTab === 'received' ? 'text-[#c9d1d9] border-b-2 border-[#f78166]' : 'text-[#8b949e] hover:text-[#c9d1d9]'
           }`}
           onClick={() => setActiveTab('received')}
         >
           <div className="flex items-center gap-2">
-            <ArrowDownLeft size={18} />
+            <ArrowDownLeft size={16} />
             Received
             {receivedRequests.filter(r => r.status === 'PENDING').length > 0 && (
-              <span className="ml-1 h-5 w-5 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center">
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-[#30363d] text-[#c9d1d9] text-[10px]">
                 {receivedRequests.filter(r => r.status === 'PENDING').length}
               </span>
             )}
           </div>
-          {activeTab === 'received' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
-          )}
         </button>
         <button
-          className={`px-6 py-3 text-sm font-semibold transition-all relative ${
-            activeTab === 'sent' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+          className={`px-4 py-2 text-sm font-medium transition-all relative ${
+            activeTab === 'sent' ? 'text-[#c9d1d9] border-b-2 border-[#f78166]' : 'text-[#8b949e] hover:text-[#c9d1d9]'
           }`}
           onClick={() => setActiveTab('sent')}
         >
           <div className="flex items-center gap-2">
-            <ArrowUpRight size={18} />
+            <ArrowUpRight size={16} />
             Sent
           </div>
-          {activeTab === 'sent' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
-          )}
         </button>
       </div>
 
-      <div className="pt-4">
+      <div className="border border-border rounded-md bg-[#0d1117] overflow-hidden">
         {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-xl bg-slate-100 animate-pulse" />)}
+          <div className="divide-y divide-border">
+            {[1, 2, 3].map(i => <div key={i} className="h-20 bg-[#161b22] animate-pulse" />)}
           </div>
-        ) : activeTab === 'received' ? (
-          renderRequestList(receivedRequests, false)
         ) : (
-          renderRequestList(sentRequests, true)
+          <div className="divide-y divide-border">
+            {(activeTab === 'received' ? receivedRequests : sentRequests).length > 0 ? (
+              (activeTab === 'received' ? receivedRequests : sentRequests).map((req: any) => (
+                <div key={req._id} className="p-4 hover:bg-[#161b22] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      {req.status === 'PENDING' ? (
+                        <Clock size={16} className="text-[#d29922]" />
+                      ) : req.status === 'ACCEPTED' ? (
+                        <Check size={16} className="text-[#238636]" />
+                      ) : (
+                        <X size={16} className="text-[#da3633]" />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-[#c9d1d9]">
+                          {activeTab === 'sent' 
+                            ? (typeof req.receiverId === 'object' ? req.receiverId.name : 'Recipient')
+                            : (typeof req.senderId === 'object' ? req.senderId.name : 'Sender')
+                          }
+                        </span>
+                        <Badge variant="outline" className="text-[9px] border-border text-[#8b949e]">
+                          {req.type}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-[#8b949e]">
+                        {activeTab === 'sent' ? 'Sent request to join ' : 'Requested to join '}
+                        <span className="text-[#58a6ff]">
+                          {typeof req.teamId === 'object' ? req.teamId.title : 'Project Team'}
+                        </span>
+                      </p>
+                      {req.message && (
+                        <p className="text-xs text-[#8b949e] italic mt-1 pl-2 border-l border-border">
+                          "{req.message}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <Badge 
+                        variant={
+                          req.status === 'ACCEPTED' ? 'success' : 
+                          req.status === 'REJECTED' ? 'error' : 'warning'
+                        }
+                        className="text-[10px]"
+                      >
+                        {req.status}
+                      </Badge>
+                      <p className="text-[10px] text-[#8b949e] mt-1">
+                        {new Date(req.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    {activeTab === 'received' && req.status === 'PENDING' && (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="primary"
+                          size="sm"
+                          className="h-8 px-3 text-xs"
+                          onClick={() => acceptMutation.mutate(req._id)}
+                          isLoading={acceptMutation.isPending}
+                        >
+                          Accept
+                        </Button>
+                        <Button 
+                          variant="secondary"
+                          size="sm" 
+                          className="h-8 px-3 text-xs text-[#da3633] border-[#da3633]/30 hover:border-[#da3633]"
+                          onClick={() => rejectMutation.mutate(req._id)}
+                          isLoading={rejectMutation.isPending}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-16 text-center">
+                <MessageSquare size={48} className="mx-auto text-[#30363d] mb-4" />
+                <p className="text-sm text-[#8b949e]">No {activeTab} requests found.</p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

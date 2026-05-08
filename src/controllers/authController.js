@@ -3,10 +3,19 @@ const { createSendToken } = require('../utils/jwt');
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, department, tracks, skills, bio } = req.body;
+    const { name, phoneNumber, email, password, department, tracks, skills, bio } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ phoneNumber });
+    if (existingUser) {
+      const error = new Error('User with this phone number already exists');
+      error.statusCode = 400;
+      return next(error);
+    }
 
     const newUser = await User.create({
       name,
+      phoneNumber,
       email,
       password,
       department,
@@ -23,20 +32,20 @@ exports.register = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { phoneNumber, password } = req.body;
 
-    // 1) Check if email and password exist
-    if (!email || !password) {
-      const error = new Error('Please provide email and password');
+    // 1) Check if phoneNumber and password exist
+    if (!phoneNumber || !password) {
+      const error = new Error('Please provide phone number and password');
       error.statusCode = 400;
       return next(error);
     }
 
     // 2) Check if user exists && password is correct
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ phoneNumber }).select('+password');
 
     if (!user || !(await user.comparePassword(password, user.password))) {
-      const error = new Error('Incorrect email or password');
+      const error = new Error('Incorrect phone number or password');
       error.statusCode = 401;
       return next(error);
     }
@@ -50,7 +59,7 @@ exports.login = async (req, res, next) => {
 
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).populate('team');
     res.status(200).json({
       status: 'success',
       data: { user }

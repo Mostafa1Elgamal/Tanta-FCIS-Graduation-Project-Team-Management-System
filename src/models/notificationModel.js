@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['NEW_APPLICATION', 'INVITATION_RECEIVED', 'REQUEST_ACCEPTED', 'REQUEST_REJECTED', 'TEAM_UPDATED'],
+    enum: ['TEAM_SWITCH_REQUEST', 'TEAM_SWITCH_RESPONSE', 'TEAM_UPDATED', 'MEMBER_ADDED', 'MEMBER_REMOVED'],
     required: true
   },
   isRead: {

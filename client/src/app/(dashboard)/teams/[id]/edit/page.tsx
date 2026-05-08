@@ -7,14 +7,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Users, Layout, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Users, Layout, Loader2, UserPlus, Phone, XCircle } from 'lucide-react';
 import { teamService } from '@/services/team.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 
 const teamSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters'),
+  title: z.string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(30, 'Title cannot exceed 30 characters')
+    .regex(/^[a-zA-Z0-9 _]+$/, 'Title can only contain letters, numbers, spaces, and underscores'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   totalSize: z.coerce.number().min(2).max(10),
   requiredTracks: z.array(z.object({
@@ -33,7 +37,7 @@ interface TeamFormValues {
   }[];
 }
 
-const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud'];
+const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
 
 export default function EditTeamPage() {
   const { id } = useParams();
@@ -95,6 +99,30 @@ export default function EditTeamPage() {
     mutation.mutate(data);
   };
 
+  const [memberPhone, setMemberPhone] = React.useState('');
+  
+  const addMemberMutation = useMutation({
+    mutationFn: () => teamService.addMember(teamId, { phoneNumber: memberPhone }),
+    onSuccess: (data: any) => {
+      if (data.conflict) {
+        toast.info(data.message);
+      } else {
+        toast.success('Member added successfully!');
+        queryClient.invalidateQueries({ queryKey: ['team', teamId] });
+      }
+      setMemberPhone('');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to add member');
+    },
+  });
+
+  const handleAddMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!memberPhone) return;
+    addMemberMutation.mutate();
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -105,99 +133,137 @@ export default function EditTeamPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-12">
-      <Button variant="ghost" size="sm" onClick={() => router.back()} className="-ml-2 text-slate-500">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Team
-      </Button>
-
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Manage Team</h1>
-        <p className="text-slate-500 text-lg">Update your project details and requirements.</p>
+      <div className="flex items-center justify-between border-b border-border pb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => router.back()} className="-ml-2 text-[#8b949e] hover:text-[#c9d1d9]">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <h1 className="text-xl font-semibold text-[#c9d1d9]">Team Settings</h1>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Layout className="text-indigo-600" size={20} />
-              <CardTitle>Team Details</CardTitle>
-            </div>
-            <CardDescription>Update your project title and description</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Input
-              label="Team Title"
-              {...register('title')}
-              error={errors.title?.message}
-            />
-            
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">Description</label>
-              <textarea
-                className="flex min-h-[120px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                {...register('description')}
-              />
-              {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Users className="text-purple-600" size={20} />
-              <CardTitle>Requirements</CardTitle>
-            </div>
-            <CardDescription>Adjust team size and needed tracks</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
+      <div className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <section className="space-y-4">
+            <h2 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2">General Details</h2>
             <div className="space-y-4">
-              <label className="text-sm font-medium text-slate-700">Team Size (max members)</label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                  {...register('totalSize')}
+              <Input
+                label="Project Title"
+                {...register('title')}
+                error={errors.title?.message}
+                className="gh-input h-10"
+              />
+              
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-[#c9d1d9]">Description</label>
+                <textarea
+                  className="flex min-h-[120px] w-full rounded-md border border-border bg-[#0d1117] px-3 py-2 text-sm text-[#c9d1d9] placeholder:text-[#484f58] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-all"
+                  placeholder="Tell us about your graduation project..."
+                  {...register('description')}
                 />
-                <span className="flex items-center justify-center h-10 w-12 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-lg border border-indigo-100">
-                  {watch('totalSize')}
-                </span>
+                {errors.description && <p className="text-xs text-[#f85149]">{errors.description.message}</p>}
               </div>
             </div>
+          </section>
 
-            <div className="space-y-4">
-              <label className="text-sm font-medium text-slate-700">Required Tracks</label>
-              <div className="flex flex-wrap gap-2">
-                {AVAILABLE_TRACKS.map(track => (
-                  <button
-                    key={track}
-                    type="button"
-                    onClick={() => toggleTrack(track)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
-                      selectedTracks.includes(track)
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'
-                    }`}
-                  >
-                    {track}
-                  </button>
+          <section className="space-y-4">
+            <h2 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2">Requirements</h2>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-[#c9d1d9]">Maximum Team Size</label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="2"
+                    max="10"
+                    className="flex-1 h-1.5 bg-[#30363d] rounded-lg appearance-none cursor-pointer accent-[#238636]"
+                    {...register('totalSize')}
+                  />
+                  <span className="flex items-center justify-center h-8 w-10 rounded-md bg-[#161b22] text-[#c9d1d9] font-bold text-sm border border-border">
+                    {watch('totalSize')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-[#c9d1d9]">Needed Specialties</label>
+                <div className="flex flex-wrap gap-2">
+                  {AVAILABLE_TRACKS.map(track => (
+                    <button
+                      key={track}
+                      type="button"
+                      onClick={() => toggleTrack(track)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all border ${
+                        selectedTracks.includes(track)
+                          ? 'bg-[#238636] text-white border-[#238636]'
+                          : 'bg-[#161b22] text-[#8b949e] border-border hover:border-[#8b949e]'
+                      }`}
+                    >
+                      {track}
+                    </button>
+                  ))}
+                </div>
+                {errors.requiredTracks && <p className="text-xs text-[#f85149]">{errors.requiredTracks.message}</p>}
+              </div>
+            </div>
+          </section>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button variant="secondary" type="button" onClick={() => router.back()}>Cancel</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting || mutation.isPending}>
+              <Save className="mr-2 h-4 w-4" />
+              Update Team
+            </Button>
+          </div>
+        </form>
+
+        <section className="space-y-4 pt-8 border-t border-border">
+          <h2 className="text-base font-semibold text-[#c9d1d9]">Member Management</h2>
+          <div className="space-y-6">
+            <form onSubmit={handleAddMember} className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  placeholder="Enter phone number to add member..."
+                  value={memberPhone}
+                  onChange={(e) => setMemberPhone(e.target.value)}
+                  className="gh-input h-9"
+                />
+              </div>
+              <Button variant="primary" type="submit" size="sm" isLoading={addMemberMutation.isPending}>
+                <UserPlus size={16} className="mr-2" />
+                Add
+              </Button>
+            </form>
+
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Current Contributors</h4>
+              <div className="grid gap-2">
+                {team?.members.map((member: any) => (
+                  <div key={member.userId._id} className="flex items-center justify-between p-3 rounded-md border border-border bg-[#161b22]">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-[#30363d] text-[#c9d1d9] flex items-center justify-center font-bold text-xs">
+                        {member.userId.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#c9d1d9]">{member.userId.name}</p>
+                        <p className="text-[10px] text-[#8b949e]">{member.userId.phoneNumber}</p>
+                      </div>
+                    </div>
+                    {member.userId._id === team.leaderId._id ? (
+                      <Badge variant="outline" className="text-[8px] border-[#d29922] text-[#d29922]">LEADER</Badge>
+                    ) : (
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#8b949e] hover:text-[#f85149]">
+                        <XCircle size={16} />
+                      </Button>
+                    )}
+                  </div>
                 ))}
               </div>
-              {errors.requiredTracks && <p className="text-xs text-red-500">{errors.requiredTracks.message}</p>}
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button" onClick={() => router.back()}>Cancel</Button>
-          <Button type="submit" size="lg" isLoading={isSubmitting || mutation.isPending} className="px-10">
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-          </Button>
-        </div>
-      </form>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

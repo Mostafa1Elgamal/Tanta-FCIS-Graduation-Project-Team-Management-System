@@ -8,12 +8,18 @@ export interface MatchResult<T> {
 
 export const matchingService = {
   async recommendTeams(): Promise<MatchResult<Team>[]> {
-    const response = await api.get<{ status: string; data: { recommendations: MatchResult<Team>[] } }>('/matching/teams');
-    return response.data.data.recommendations;
+    const response = await api.get<{ status: string; data: { recommendations: any[] } }>('/matching/teams');
+    return response.data.data.recommendations.map(rec => ({
+      item: rec.team,
+      score: rec.score
+    }));
   },
 
   async recommendTeammates(): Promise<MatchResult<User>[]> {
-    const response = await api.get<{ status: string; data: { recommendations: MatchResult<User>[] } }>('/matching/users');
-    return response.data.data.recommendations;
+    const response = await api.get<{ status: string; data: { recommendations: any[] } }>('/matching/users');
+    return response.data.data.recommendations.map(rec => ({
+      item: rec.user,
+      score: rec.score
+    }));
   },
 };

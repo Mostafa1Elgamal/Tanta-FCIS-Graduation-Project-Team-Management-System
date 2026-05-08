@@ -33,7 +33,7 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-const TRACKS_OPTIONS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud'];
+const TRACKS_OPTIONS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
@@ -90,228 +90,201 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="max-w-5xl mx-auto space-y-8 pb-12">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-          <p className="text-slate-500">Manage your identity and availability.</p>
+          <h1 className="text-2xl font-semibold text-[#c9d1d9]">Settings</h1>
+          <p className="text-sm text-[#8b949e]">Manage your public profile and preferences.</p>
         </div>
         <Button
-          variant={isEditing ? 'outline' : 'primary'}
+          variant={isEditing ? 'secondary' : 'primary'}
           onClick={() => {
             if (isEditing) reset();
             setIsEditing(!isEditing);
           }}
         >
-          {isEditing ? 'Cancel Editing' : 'Edit Profile'}
+          {isEditing ? 'Cancel' : 'Edit Profile'}
         </Button>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-3">
-        {/* Profile Info Sidebar */}
-        <div className="space-y-6">
-          <Card className="text-center overflow-hidden">
-            <div className="h-24 bg-indigo-600" />
-            <CardContent className="pt-0 -mt-10 flex flex-col items-center">
-              <div className="h-20 w-20 rounded-full border-4 border-white bg-slate-100 flex items-center justify-center text-3xl font-bold text-slate-600 shadow-sm">
-                {user?.name?.charAt(0)}
-              </div>
-              <h2 className="mt-4 text-xl font-bold text-slate-900">{user?.name}</h2>
-              <p className="text-sm text-slate-500 flex items-center gap-1 mt-1">
-                <Mail size={14} />
-                {user?.email}
-              </p>
-              <div className="mt-4 w-full flex items-center justify-center gap-2">
-                <Badge variant={user?.status === 'LOOKING' ? 'success' : 'secondary'}>
-                  {user?.status === 'LOOKING' ? 'Looking for Team' : 'In a Team'}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid gap-8 md:grid-cols-4">
+        {/* Profile Sidebar */}
+        <div className="md:col-span-1 space-y-6">
+          <div className="space-y-4">
+            <div className="aspect-square w-full rounded-md bg-[#30363d] flex items-center justify-center text-5xl font-bold text-[#c9d1d9] border border-border">
+              {user?.name?.charAt(0)}
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold text-[#c9d1d9]">{user?.name}</h2>
+              <p className="text-[#8b949e] text-sm">{user?.department}</p>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Contact & Social</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Github size={18} className="text-slate-400" />
-                {user?.githubUrl ? (
-                  <a href={user.githubUrl} target="_blank" className="hover:text-indigo-600 hover:underline transition-colors truncate">
-                    {user.githubUrl.replace('https://', '')}
-                  </a>
-                ) : <span className="text-slate-300 italic">Not added</span>}
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Globe size={18} className="text-slate-400" />
-                {user?.portfolioUrl ? (
-                  <a href={user.portfolioUrl} target="_blank" className="hover:text-indigo-600 hover:underline transition-colors truncate">
-                    {user.portfolioUrl.replace('https://', '')}
-                  </a>
-                ) : <span className="text-slate-300 italic">Not added</span>}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-3 pt-4 border-t border-border">
+            <div className="flex items-center gap-2 text-sm text-[#c9d1d9]">
+              <Mail size={16} className="text-[#8b949e]" />
+              <span className="truncate">{user?.phoneNumber}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-[#c9d1d9]">
+              <Github size={16} className="text-[#8b949e]" />
+              {user?.githubUrl ? (
+                <a href={user.githubUrl} target="_blank" className="text-[#58a6ff] hover:underline truncate">
+                  {user.githubUrl.replace('https://github.com/', '')}
+                </a>
+              ) : <span className="text-[#8b949e] italic">No GitHub</span>}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-[#c9d1d9]">
+              <Globe size={16} className="text-[#8b949e]" />
+              {user?.portfolioUrl ? (
+                <a href={user.portfolioUrl} target="_blank" className="text-[#58a6ff] hover:underline truncate">
+                  {user.portfolioUrl.replace('https://', '')}
+                </a>
+              ) : <span className="text-[#8b949e] italic">No Portfolio</span>}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-border">
+            <Badge variant={user?.status === 'LOOKING' ? 'success' : 'secondary'} className="w-full justify-center py-1">
+              {user?.status === 'LOOKING' ? 'Looking for Team' : 'Currently in Team'}
+            </Badge>
+          </div>
         </div>
 
-        {/* Main Form/Display Area */}
-        <div className="md:col-span-2 space-y-6">
+        {/* Main Content Area */}
+        <div className="md:col-span-3">
           {isEditing ? (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Professional Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <Input
-                    label="Department"
-                    placeholder="e.g. Computer Science"
-                    {...register('department')}
-                    error={errors.department?.message}
-                  />
-
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+              <section className="space-y-4">
+                <h3 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2">Public Profile</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Expertise Tracks</label>
-                    <div className="flex flex-wrap gap-2">
-                      {TRACKS_OPTIONS.map(track => (
-                        <button
-                          key={track}
-                          type="button"
-                          onClick={() => toggleTrack(track)}
-                          className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all",
-                            selectedTracks.includes(track)
-                              ? "bg-indigo-600 text-white border-indigo-600"
-                              : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300"
-                          )}
-                        >
-                          {track}
-                        </button>
-                      ))}
-                    </div>
-                    {errors.tracks && <p className="text-xs text-red-500">{errors.tracks.message}</p>}
+                    <label className="text-sm font-semibold text-[#c9d1d9]">Bio</label>
+                    <textarea
+                      className="flex min-h-[100px] w-full rounded-md border border-border bg-[#0d1117] px-3 py-2 text-sm text-[#c9d1d9] placeholder:text-[#484f58] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      placeholder="Write a short bio about yourself..."
+                      {...register('bio')}
+                    />
+                    {errors.bio && <p className="text-[10px] text-[#f85149]">{errors.bio.message}</p>}
                   </div>
-
-                  <Input
-                    label="Bio"
-                    placeholder="Short description about yourself..."
-                    {...register('bio')}
-                    error={errors.bio?.message}
-                  />
-
-                  <Input
-                    label="Skills (comma separated)"
-                    placeholder="React, Node.js, Python, Figma..."
-                    {...register('skills')}
-                  />
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Input
-                      label="Github URL"
+                      label="GitHub URL"
                       placeholder="https://github.com/..."
                       {...register('githubUrl')}
                       error={errors.githubUrl?.message}
+                      className="gh-input h-9"
                     />
                     <Input
                       label="Portfolio URL"
                       placeholder="https://..."
                       {...register('portfolioUrl')}
                       error={errors.portfolioUrl?.message}
+                      className="gh-input h-9"
                     />
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <h3 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2">Technical Tracks</h3>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {TRACKS_OPTIONS.map(track => (
+                      <button
+                        key={track}
+                        type="button"
+                        onClick={() => toggleTrack(track)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-md text-xs font-medium border transition-all",
+                          selectedTracks.includes(track)
+                            ? "bg-[#238636] text-white border-[#238636]"
+                            : "bg-[#161b22] text-[#8b949e] border-border hover:border-[#8b949e]"
+                        )}
+                      >
+                        {track}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.tracks && <p className="text-[10px] text-[#f85149]">{errors.tracks.message}</p>}
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <h3 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2">Availability</h3>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="radio"
+                      value="LOOKING"
+                      {...register('status')}
+                      className="h-4 w-4 border-border bg-[#161b22] text-blue-600 focus:ring-offset-[#0d1117] focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-[#c9d1d9] group-hover:text-[#58a6ff]">Available for Teams</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="radio"
+                      value="IN_TEAM"
+                      {...register('status')}
+                      className="h-4 w-4 border-border bg-[#161b22] text-blue-600 focus:ring-offset-[#0d1117] focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-[#c9d1d9] group-hover:text-[#58a6ff]">Not Looking</span>
+                  </label>
+                </div>
+              </section>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button variant="secondary" type="button" onClick={() => setIsEditing(false)}>Cancel</Button>
+                <Button variant="primary" type="submit" isLoading={isSubmitting}>
+                  <Save size={16} className="mr-2" />
+                  Save Settings
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-8">
+              <section>
+                <h3 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2 mb-4">About</h3>
+                <p className="text-sm text-[#8b949e] leading-relaxed whitespace-pre-wrap">
+                  {user?.bio || 'No bio provided.'}
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-base font-semibold text-[#c9d1d9] border-b border-border pb-2 mb-4">Expertise</h3>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Tracks</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {user?.tracks?.map(track => (
+                        <Badge key={track} variant="outline" className="bg-[#161b22] border-border text-[#c9d1d9]">
+                          {track}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Availability Status</label>
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          value="LOOKING"
-                          {...register('status')}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span className="text-sm text-slate-700">Looking for Team</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          value="IN_TEAM"
-                          {...register('status')}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span className="text-sm text-slate-700">Already in a Team</span>
-                      </label>
+                    <h4 className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Skills</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {user?.skills?.map(skill => (
+                        <Badge key={skill} variant="secondary" className="bg-[#0d1117] border-border text-[#8b949e]">
+                          {skill}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
-                </CardContent>
-                <CardFooter className="flex justify-end gap-3 pt-4 border-t border-slate-50">
-                  <Button variant="outline" type="button" onClick={() => setIsEditing(false)}>Cancel</Button>
-                  <Button type="submit" isLoading={isSubmitting}>
-                    <Save size={18} className="mr-2" />
-                    Save Changes
-                  </Button>
-                </CardFooter>
-              </Card>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>About Me</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-600 leading-relaxed">
-                    {user?.bio || 'No bio provided. Click edit to add one!'}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Expertise & Skills</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Department</h4>
-                    <p className="text-slate-700 font-medium mb-4">{user?.department || 'Not Specified'}</p>
-
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Specialization Tracks</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {user?.tracks && user.tracks.length > 0 ? (
-                        user.tracks.map(track => (
-                          <Badge key={track} variant="default" className="text-xs">
-                            <Code size={12} className="mr-1" />
-                            {track}
-                          </Badge>
-                        ))
-                      ) : <p className="text-sm text-slate-400">No tracks specified</p>}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Skills & Technologies</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {user?.skills && user.skills.length > 0 ? (
-                        user.skills.map(skill => (
-                          <Badge key={skill} variant="secondary" className="px-3 py-1.5 rounded-lg border border-slate-200">
-                            {skill}
-                          </Badge>
-                        ))
-                      ) : (
-                        <p className="text-sm text-slate-400 italic">No skills added yet.</p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </section>
 
               {user?.status === 'IN_TEAM' && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
-                  <CheckCircle2 className="text-emerald-500 mt-0.5" size={20} />
-                  <div>
-                    <h4 className="text-emerald-900 font-bold">Successfully Matched</h4>
-                    <p className="text-emerald-700 text-sm">You are currently assigned to a team. If you want to join another team, update your status to "Looking for Team".</p>
+                <div className="p-4 rounded-md border border-[#238636] bg-[rgba(35,134,54,0.1)] text-[#3fb950] text-sm">
+                  <div className="flex items-center gap-2 font-semibold mb-1">
+                    <CheckCircle2 size={16} />
+                    Project Team Assigned
                   </div>
+                  <p className="text-xs opacity-80">You are currently part of a graduation project team.</p>
                 </div>
               )}
             </div>

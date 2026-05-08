@@ -14,7 +14,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuthStore } from '@/store/useAuthStore';
 
 const teamSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters'),
+  title: z.string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(30, 'Title cannot exceed 30 characters')
+    .regex(/^[a-zA-Z0-9 _]+$/, 'Title can only contain letters, numbers, spaces, and underscores'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   totalSize: z.coerce.number().min(2).max(10),
   requiredTracks: z.array(z.object({
@@ -33,7 +36,7 @@ interface TeamFormValues {
   }[];
 }
 
-const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud'];
+const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
 
 export default function CreateTeamPage() {
   const router = useRouter();
@@ -78,110 +81,87 @@ export default function CreateTeamPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-12">
-      <Button variant="ghost" size="sm" onClick={() => router.back()} className="-ml-2 text-slate-500">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
-      </Button>
-
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Create a New Team</h1>
-        <p className="text-slate-500 text-lg">Start your graduation project journey here.</p>
+    <div className="max-w-2xl mx-auto space-y-6 pb-12">
+      <div className="border-b border-border pb-6">
+        <h1 className="text-2xl font-semibold text-[#c9d1d9]">Create a new team</h1>
+        <p className="text-sm text-[#8b949e]">A team contains all project members and track requirements.</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card className="border-none shadow-sm ring-1 ring-slate-200">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                <Layout size={20} />
-              </div>
-              <CardTitle>Basic Information</CardTitle>
-            </div>
-            <CardDescription>Tell everyone what your project is about</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Input
-              label="Team Title"
-              placeholder="e.g. AI-Powered Smart Agriculture System"
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <section className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[#c9d1d9]">Team name</label>
+            <input
+              placeholder="e.g. smart-agriculture-system"
+              className="gh-input w-full h-9"
               {...register('title')}
-              error={errors.title?.message}
             />
-            
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">Description</label>
-              <textarea
-                className="flex min-h-[120px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Describe your project goals, technologies, and what you're looking for in teammates..."
-                {...register('description')}
+            <p className="text-[11px] text-[#8b949e]">Great team names are short and memorable.</p>
+            {errors.title && <p className="text-[10px] text-[#f85149] mt-1">{errors.title.message}</p>}
+          </div>
+          
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[#c9d1d9]">Description <span className="text-[#8b949e] font-normal">(optional)</span></label>
+            <textarea
+              className="flex min-h-[100px] w-full rounded-md border border-border bg-[#0d1117] px-3 py-2 text-sm text-[#c9d1d9] placeholder:text-[#484f58] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              placeholder="Briefly describe your graduation project goals..."
+              {...register('description')}
+            />
+            {errors.description && <p className="text-[10px] text-[#f85149] mt-1">{errors.description.message}</p>}
+          </div>
+        </section>
+
+        <section className="space-y-6 pt-6 border-t border-border">
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-[#c9d1d9]">Maximum team size</label>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="2"
+                max="10"
+                className="flex-1 h-1.5 bg-[#30363d] rounded-lg appearance-none cursor-pointer accent-[#238636]"
+                {...register('totalSize')}
               />
-              {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
+              <span className="flex items-center justify-center h-8 w-10 rounded-md bg-[#161b22] text-[#c9d1d9] font-bold text-sm border border-border">
+                {watch('totalSize')}
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <p className="text-[11px] text-[#8b949e]">Most graduation project teams consist of 4-6 members.</p>
+          </div>
 
-        <Card className="border-none shadow-sm ring-1 ring-slate-200">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                <Users size={20} />
-              </div>
-              <CardTitle>Team Configuration</CardTitle>
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-[#c9d1d9]">Required technical tracks</label>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABLE_TRACKS.map(track => (
+                <button
+                  key={track}
+                  type="button"
+                  onClick={() => toggleTrack(track)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-all ${
+                    selectedTracks.includes(track)
+                      ? 'bg-[#238636] text-white border-[#238636]'
+                      : 'bg-[#161b22] text-[#8b949e] border-border hover:border-[#8b949e]'
+                  }`}
+                >
+                  {track}
+                </button>
+              ))}
             </div>
-            <CardDescription>Set the size and required skills for your team</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="space-y-4">
-              <label className="text-sm font-medium text-slate-700">Team Size (max members)</label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                  {...register('totalSize')}
-                />
-                <span className="flex items-center justify-center h-10 w-12 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-lg border border-indigo-100">
-                  {watch('totalSize')}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 italic">Recommended team size is 3-6 members.</p>
-            </div>
+            {errors.requiredTracks && <p className="text-[10px] text-[#f85149] mt-1">{errors.requiredTracks.message}</p>}
+          </div>
+        </section>
 
-            <div className="space-y-4">
-              <label className="text-sm font-medium text-slate-700">Required Tracks</label>
-              <div className="flex flex-wrap gap-2">
-                {AVAILABLE_TRACKS.map(track => (
-                  <button
-                    key={track}
-                    type="button"
-                    onClick={() => toggleTrack(track)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border ${
-                      selectedTracks.includes(track)
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'
-                    }`}
-                  >
-                    {track}
-                  </button>
-                ))}
-              </div>
-              {errors.requiredTracks && <p className="text-xs text-red-500">{errors.requiredTracks.message}</p>}
-            </div>
-          </CardContent>
-          <CardFooter className="bg-slate-50/50 rounded-b-xl py-4 border-t border-slate-200">
-            <div className="flex items-center gap-3 text-slate-500 text-sm">
-              <Plus size={16} />
-              <span>You will automatically be added as the team leader.</span>
-            </div>
-          </CardFooter>
-        </Card>
-
-        <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button" onClick={() => router.back()}>Cancel</Button>
-          <Button type="submit" size="lg" isLoading={isSubmitting} className="px-10">
-            Create Team
-          </Button>
+        <div className="pt-6 border-t border-border flex flex-col gap-4">
+           <div className="flex items-center gap-2 text-xs text-[#8b949e]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#238636]" />
+              <span>You will be initialized as the team leader.</span>
+           </div>
+           <div className="flex justify-end gap-3">
+             <Button variant="secondary" type="button" onClick={() => router.back()}>Cancel</Button>
+             <Button variant="primary" type="submit" isLoading={isSubmitting}>
+               Create team
+             </Button>
+           </div>
         </div>
       </form>
     </div>

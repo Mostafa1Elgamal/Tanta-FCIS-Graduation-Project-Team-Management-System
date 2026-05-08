@@ -8,12 +8,21 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide your name'],
     trim: true
   },
+  phoneNumber: {
+    type: String,
+    required: [true, 'Please provide your phone number'],
+    unique: true,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^\+[1-9]\d{9,14}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid E.164 phone number!`
+    }
+  },
   email: {
     type: String,
-    required: [true, 'Please provide your email'],
-    unique: true,
     lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email']
   },
   password: {
     type: String,
@@ -44,6 +53,15 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  team: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Team'
+  },
+  isBanned: {
+    type: Boolean,
+    default: false
+  },
+  bannedAt: Date,
   createdAt: {
     type: Date,
     default: Date.now

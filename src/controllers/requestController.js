@@ -169,8 +169,9 @@ exports.acceptRequest = async (req, res, next) => {
     request.status = 'ACCEPTED';
     await request.save({ session });
 
-    // 2) Update User Status
+    // 2) Update User Status and Team
     userToJoin.status = 'IN_TEAM';
+    userToJoin.team = team._id;
     await userToJoin.save({ session });
 
     // 3) Update Team Members and Size
@@ -289,15 +290,21 @@ exports.rejectRequest = async (req, res, next) => {
 
 exports.getRequests = async (req, res, next) => {
   try {
+    // 1) Find teams led by user
+    const myTeams = await Team.find({ leaderId: req.user.id });
+    const myTeamIds = myTeams.map(t => t._id);
+
+    // 2) Find requests where user is sender, receiver, OR team leader
     const requests = await Request.find({
       $or: [
         { senderId: req.user.id },
-        { receiverId: req.user.id }
+        { receiverId: req.user.id },
+        { teamId: { $in: myTeamIds } }
       ]
     })
     .populate('senderId', 'name email')
     .populate('receiverId', 'name email')
-    .populate('teamId', 'title description');
+    .populate('teamId', 'title description leaderId');
 
     res.status(200).json({
       status: 'success',

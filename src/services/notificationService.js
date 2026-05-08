@@ -13,7 +13,9 @@ class NotificationService {
 
       // 2) Send via Socket.io if user is online
       if (io) {
-        io.to(userId.toString()).emit('notification', notification);
+        const room = userId.toString();
+        console.log(`Emitting notification to room ${room}:`, type);
+        io.to(room).emit('notification', notification);
         
         // Specific event types for easier frontend handling
         const eventMap = {
@@ -21,12 +23,16 @@ class NotificationService {
           'INVITATION_RECEIVED': 'invitation_received',
           'REQUEST_ACCEPTED': 'request_accepted',
           'REQUEST_REJECTED': 'request_rejected',
-          'TEAM_UPDATED': 'team_updated'
+          'TEAM_UPDATED': 'team_updated',
+          'TEAM_SWITCH_REQUEST': 'team_switch_request',
+          'TEAM_SWITCH_RESPONSE': 'team_switch_response'
         };
         
         if (eventMap[type]) {
-          io.to(userId.toString()).emit(eventMap[type], notification);
+          io.to(room).emit(eventMap[type], notification);
         }
+      } else {
+        console.warn('Socket.io instance (io) not provided to NotificationService');
       }
 
       return notification;

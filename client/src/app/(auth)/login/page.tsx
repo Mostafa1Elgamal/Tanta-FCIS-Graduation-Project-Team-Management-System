@@ -15,8 +15,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuthStore } from '@/store/useAuthStore';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+  phoneNumber: z.string()
+    .regex(/^\+[1-9]\d{9,14}$/, { message: 'Phone must be in international format (e.g. +20...)' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -32,7 +33,7 @@ export default function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      phoneNumber: '',
       password: '',
     },
   });
@@ -48,55 +49,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="w-full max-w-md space-y-8">
-        <div className="flex flex-col items-center justify-center">
-          <div className="rounded-full bg-indigo-600 p-3 text-white shadow-lg">
-            <GraduationCap size={32} />
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">
-            Sign in to your account
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 bg-[#0d1117]">
+      <div className="w-full max-w-[308px] space-y-4">
+        <div className="flex flex-col items-center justify-center mb-6">
+          <GraduationCap size={48} className="text-[#f0f6fc]" />
+          <h2 className="mt-6 text-center text-2xl font-light tracking-tight text-[#f0f6fc]">
+            Sign in to TeamUp
           </h2>
-          <p className="mt-2 text-center text-sm text-slate-600">
-            Or{' '}
-            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              create a new account
-            </Link>
-          </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
-            <CardDescription>Enter your credentials to access the portal</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <Input
-                label="Email Address"
-                type="email"
-                placeholder="name@example.com"
-                {...register('email')}
-                error={errors.email?.message}
+        <div className="bg-[#161b22] border border-[#30363d] rounded-md p-5 space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-sm text-[#f0f6fc] block">Phone number</label>
+              <input
+                type="tel"
+                className="gh-input w-full"
+                {...register('phoneNumber')}
               />
-              <Input
-                label="Password"
+              {errors.phoneNumber && <p className="text-[10px] text-[#f85149] mt-1">{errors.phoneNumber.message}</p>}
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <label className="text-sm text-[#f0f6fc] block">Password</label>
+                <Link href="#" className="text-xs text-[#58a6ff] hover:underline">Forgot password?</Link>
+              </div>
+              <input
                 type="password"
-                placeholder="••••••••"
+                className="gh-input w-full"
                 {...register('password')}
-                error={errors.password?.message}
               />
-              <Button type="submit" className="w-full" isLoading={isLoading}>
-                Sign In
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4 text-center text-sm text-slate-500">
-            <p>
-              By signing in, you agree to our Terms of Service and Privacy Policy.
-            </p>
-          </CardFooter>
-        </Card>
+              {errors.password && <p className="text-[10px] text-[#f85149] mt-1">{errors.password.message}</p>}
+            </div>
+
+            <Button type="submit" variant="primary" className="w-full gh-button-primary" isLoading={isLoading}>
+              Sign in
+            </Button>
+          </form>
+        </div>
+
+        <div className="border border-[#30363d] rounded-md p-4 text-center">
+          <p className="text-sm text-[#f0f6fc]">
+            New to TeamUp?{' '}
+            <Link href="/register" className="text-[#58a6ff] hover:underline">
+              Create an account
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     </div>
   );

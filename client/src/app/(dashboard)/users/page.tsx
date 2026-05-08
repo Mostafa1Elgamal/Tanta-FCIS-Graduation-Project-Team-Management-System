@@ -20,8 +20,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/utils/cn';
 
-const TRACKS_OPTIONS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud'];
+const TRACKS_OPTIONS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
 
 export default function UsersPage() {
   const [search, setSearch] = useState('');
@@ -45,193 +46,148 @@ export default function UsersPage() {
     enabled: !!currentUser?.team,
   });
 
-  const inviteMutation = useMutation({
-    mutationFn: ({ userId, teamId }: { userId: string, teamId: string }) =>
-      requestService.inviteUser(userId, teamId),
-    onSuccess: () => {
-      toast.success('Invitation sent successfully!');
-      queryClient.invalidateQueries({ queryKey: ['requests'] });
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to send invitation');
-    },
-  });
-
-  const handleInvite = (userId: string) => {
-    if (!currentUser?.team) {
-      toast.error('You must be in a team to invite users.');
-      return;
-    }
-    
-    // Extract team ID safely from string or object
-    const teamId = typeof currentUser.team === 'string' 
-      ? currentUser.team 
-      : (currentUser.team as any)._id || (currentUser.team as any).id;
-
-    if (!teamId) {
-      toast.error('Could not determine team ID. Please refresh.');
-      return;
-    }
-
-    inviteMutation.mutate({ userId, teamId });
-  };
-
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-slate-900">Find Teammates</h1>
-        <p className="text-slate-500">Discover talented students ready to join a project.</p>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex flex-col gap-2 border-b border-border pb-6">
+        <h1 className="text-2xl font-semibold text-[#c9d1d9]">Find Teammates</h1>
+        <p className="text-sm text-[#8b949e]">Discover talented students ready to collaborate on graduation projects.</p>
       </div>
 
       {/* Recommended Section */}
       {currentUser?.team && recommendations && recommendations.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[var(--github-blue)]" />
-            <h2 className="text-xl font-bold text-slate-800">Smart Recommendations</h2>
+            <Sparkles className="h-4 w-4 text-[#d29922]" />
+            <h2 className="text-sm font-semibold text-[#c9d1d9]">Recommended for your team</h2>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {recommendations.slice(0, 3).map((match) => (
-              <Card key={match.item._id} className="border-indigo-100 bg-indigo-50/20 shadow-sm">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-lg">
+              <div key={match.item._id} className="p-4 rounded-md border border-[#d29922]/30 bg-[rgba(210,153,34,0.05)] flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="h-10 w-10 rounded-full bg-[#30363d] flex items-center justify-center font-bold text-[#c9d1d9]">
                       {match.item.name.charAt(0)}
                     </div>
-                    <Badge variant="success">{Math.round(match.score)}% match</Badge>
+                    <Badge variant="outline" className="border-[#238636] text-[#238636] text-[10px]">
+                      {Math.round(match.score)}% Match
+                    </Badge>
                   </div>
-                  <CardTitle className="mt-4">{match.item.name}</CardTitle>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {match.item.tracks.map(track => (
-                      <Badge key={track} variant="secondary" className="text-[10px]">{track}</Badge>
+                  <h3 className="text-sm font-bold text-[#c9d1d9] mb-1">{match.item.name}</h3>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {match.item.tracks.slice(0, 2).map(track => (
+                      <Badge key={track} variant="secondary" className="text-[9px] bg-[#161b22] border-border">{track}</Badge>
                     ))}
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {match.item.skills.slice(0, 4).map(skill => (
-                      <Badge key={skill} variant="outline" className="bg-white text-[10px]">{skill}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full" 
-                    size="sm" 
-                    onClick={() => handleInvite(match.item._id)}
-                    isLoading={inviteMutation.isPending && inviteMutation.variables?.userId === match.item._id}
-                  >
-                    <UserPlus size={16} className="mr-2" />
-                    Invite to Team
+                </div>
+                <a 
+                  href={`https://wa.me/${(match.item.phoneNumber?.replace(/\D/g, '') || '').startsWith('20') ? match.item.phoneNumber?.replace(/\D/g, '') : '20' + (match.item.phoneNumber?.replace(/\D/g, '') || '').replace(/^0/, '')}`}
+                  target="_blank"
+                  className="w-full"
+                >
+                  <Button variant="secondary" size="sm" className="w-full text-xs h-8 text-[#238636] border-[#238636]/30 hover:border-[#238636]">
+                    Contact via WhatsApp
                   </Button>
-                </CardFooter>
-              </Card>
+                </a>
+              </div>
             ))}
           </div>
         </div>
       )}
 
       {/* Main Browsing Section */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-[var(--github-fg)]">All Available Students</h2>
-
-        {/* Filters */}
-        <Card className="bg-[var(--github-subtle)] border-[var(--github-border)]">
-          <CardContent className="p-4 flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search by student name..."
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <select
-              className="h-8 rounded-[6px] border border-[var(--github-border)] bg-[var(--github-bg)] px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--github-blue)] min-w-[200px] text-[var(--github-fg)]"
-              value={selectedTrack}
-              onChange={(e) => setSelectedTrack(e.target.value)}
-            >
-              <option value="All">All Tracks</option>
-              {TRACKS_OPTIONS.map(track => <option key={track} value={track}>{track}</option>)}
-            </select>
-          </CardContent>
-        </Card>
-
-        {isLoading ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-64 rounded-xl bg-slate-100 animate-pulse" />
-            ))}
+      <div className="space-y-6 pt-4">
+        {/* Search & Filter Header */}
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8b949e]" />
+            <input
+              placeholder="Search students..."
+              className="gh-input w-full pl-9 h-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-        ) : users && users.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {users.filter(u => u._id !== currentUser?._id).map((student) => (
-              <Card key={student._id} className="flex flex-col group hover:border-[var(--github-blue)] transition-all">
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-2xl bg-[var(--github-subtle)] flex items-center justify-center font-bold text-[var(--github-fg)] opacity-70 text-xl group-hover:bg-[var(--github-blue)] group-hover:text-white transition-colors border border-[var(--github-border)]">
-                      {student.name.charAt(0)}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{student.name}</CardTitle>
-                      <div className="flex flex-wrap gap-1 mt-1">
+          <select
+            className="gh-input h-9 bg-[#161b22] border-border text-[#c9d1d9] min-w-[180px]"
+            value={selectedTrack}
+            onChange={(e) => setSelectedTrack(e.target.value)}
+          >
+            <option value="All">All Tracks</option>
+            {TRACKS_OPTIONS.map(track => <option key={track} value={track}>{track}</option>)}
+          </select>
+        </div>
+
+        {/* User List */}
+        <div className="border border-border rounded-md overflow-hidden bg-[#0d1117]">
+          {isLoading ? (
+            <div className="divide-y divide-border">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="p-4 bg-[#161b22] animate-pulse h-24" />
+              ))}
+            </div>
+          ) : users && users.length > 0 ? (
+            <div className="divide-y divide-border">
+              {users.filter(u => u._id !== currentUser?._id).map((student) => (
+                <div key={student._id} className="p-4 hover:bg-[#161b22] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-[#30363d] flex items-center justify-center font-bold text-[#c9d1d9] text-[10px]">
+                        {student.name.charAt(0)}
+                      </div>
+                      <h3 className="text-base font-bold text-[#58a6ff] hover:underline cursor-pointer">
+                        {student.name}
+                      </h3>
+                      <div className="flex gap-1">
                         {student.tracks.map(track => (
-                          <Badge key={track} variant="secondary" className="text-[10px]">{track}</Badge>
+                          <Badge key={track} variant="outline" className="text-[10px] border-border">{track}</Badge>
                         ))}
                       </div>
                     </div>
+                    
+                    <p className="text-sm text-[#8b949e] line-clamp-1 max-w-2xl">
+                      {student.bio || 'Available for collaboration on graduation projects.'}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {student.skills.slice(0, 6).map(skill => (
+                        <span key={skill} className="text-[11px] text-[#8b949e] flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-[#2f81f7]/40" />
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent className="flex-1 space-y-4">
-                  <p className="text-sm text-slate-600 line-clamp-2 italic">
-                    "{student.bio || 'Hello! I am looking for a graduation project team.'}"
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {student.skills.map(skill => (
-                      <Badge key={skill} variant="outline" className="text-[10px]">{skill}</Badge>
-                    ))}
-                  </div>
-                  <div className="flex gap-4 pt-2">
-                    {student.githubUrl && (
-                      <a href={student.githubUrl} target="_blank" className="text-slate-400 hover:text-slate-900 transition-colors">
-                        <Github size={18} />
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-4">
+                      {student.githubUrl && (
+                        <a href={student.githubUrl} target="_blank" className="text-[#8b949e] hover:text-[#c9d1d9]">
+                          <Github size={20} />
+                        </a>
+                      )}
+                      <a 
+                        href={`https://wa.me/${(student.phoneNumber?.replace(/\D/g, '') || '').startsWith('20') ? student.phoneNumber?.replace(/\D/g, '') : '20' + (student.phoneNumber?.replace(/\D/g, '') || '').replace(/^0/, '')}`}
+                        target="_blank"
+                        className="flex items-center gap-2"
+                      >
+                        <Button variant="secondary" size="sm" className="text-[#238636] border-[#238636]/30 hover:border-[#238636]">
+                          <Mail size={14} className="mr-2" />
+                          Contact
+                        </Button>
                       </a>
-                    )}
-                    {student.portfolioUrl && (
-                      <a href={student.portfolioUrl} target="_blank" className="text-slate-400 hover:text-slate-900 transition-colors">
-                        <ExternalLink size={18} />
-                      </a>
-                    )}
-                    <a href={`mailto:${student.email}`} className="text-slate-400 hover:text-slate-900 transition-colors">
-                      <Mail size={18} />
-                    </a>
+                    </div>
                   </div>
-                </CardContent>
-                <CardFooter className="pt-4 border-t border-[var(--github-border)]">
-                  <Button
-                    variant={currentUser?.team ? 'primary' : 'outline'}
-                    className="w-full"
-                    disabled={!currentUser?.team}
-                    onClick={() => handleInvite(student._id)}
-                    isLoading={inviteMutation.isPending && inviteMutation.variables?.userId === student._id}
-                  >
-                    <UserPlus size={16} className="mr-2" />
-                    {currentUser?.team ? 'Invite to Team' : 'No Team Found'}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-300">
-            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-slate-100 text-slate-400 mb-4">
-              <Users size={32} />
+                </div>
+              ))}
             </div>
-            <h3 className="text-lg font-bold text-slate-900">No students found</h3>
-            <p className="text-slate-500">Everyone seems to be in a team or filters are too strict.</p>
-          </div>
-        )}
+          ) : (
+            <div className="p-16 text-center">
+              <Users size={48} className="mx-auto text-[#484f58] mb-4" />
+              <h3 className="text-lg font-semibold text-[#c9d1d9]">No students found</h3>
+              <p className="text-sm text-[#8b949e]">Everyone seems to be in a team or filters are too strict.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

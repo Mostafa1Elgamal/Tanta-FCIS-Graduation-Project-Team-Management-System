@@ -3,7 +3,8 @@ export type UserRole = 'student' | 'admin';
 export interface User {
   _id: string;
   name: string;
-  email: string;
+  phoneNumber: string;
+  email?: string;
   role: UserRole;
   department: string;
   tracks: string[];
@@ -38,7 +39,7 @@ export interface Team {
   createdAt: string;
 }
 
-export interface Request {
+export interface TeamRequest {
   _id: string;
   senderId: string | User;
   receiverId?: string | User;
@@ -52,12 +53,11 @@ export interface Request {
 
 export interface Notification {
   _id: string;
-  recipient: string;
-  sender: string | User;
-  type: 'application' | 'invitation' | 'acceptance' | 'rejection' | 'team_update';
+  userId: string;
+  type: 'TEAM_SWITCH_REQUEST' | 'TEAM_SWITCH_RESPONSE' | 'TEAM_UPDATED' | 'MEMBER_ADDED' | 'MEMBER_REMOVED';
   content: string;
   isRead: boolean;
-  relatedId?: string;
+  relatedId?: any;
   createdAt: string;
 }
 

@@ -5,7 +5,15 @@ const teamSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A team must have a title'],
     trim: true,
-    unique: true
+    unique: true,
+    minlength: [3, 'Team title must be at least 3 characters'],
+    maxlength: [30, 'Team title cannot exceed 30 characters'],
+    validate: {
+      validator: function(v) {
+        return /^[a-zA-Z0-9 _]+$/.test(v);
+      },
+      message: 'Team title can only contain letters, numbers, spaces, and underscores'
+    }
   },
   description: {
     type: String,

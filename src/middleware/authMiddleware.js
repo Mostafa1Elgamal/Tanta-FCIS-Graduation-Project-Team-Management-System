@@ -26,6 +26,13 @@ exports.protect = async (req, res, next) => {
       return next(error);
     }
 
+    // 4) Check if user is banned
+    if (currentUser.isBanned) {
+      const error = new Error('Your account has been banned. Please contact support.');
+      error.statusCode = 403;
+      return next(error);
+    }
+
     // GRANT ACCESS TO PROTECTED ROUTE
     req.user = currentUser;
     next();
@@ -34,4 +41,15 @@ exports.protect = async (req, res, next) => {
     error.statusCode = 401;
     next(error);
   }
+};
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      const error = new Error('You do not have permission to perform this action');
+      error.statusCode = 403;
+      return next(error);
+    }
+    next();
+  };
 };

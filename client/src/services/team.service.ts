@@ -25,4 +25,14 @@ export const teamService = {
   async deleteTeam(id: string): Promise<void> {
     await api.delete(`/teams/${id}`);
   },
+
+  async addMember(teamId: string, data: { phoneNumber: string; role?: string }): Promise<any> {
+    const response = await api.post(`/teams/${teamId}/members`, data);
+    return response.data;
+  },
+
+  async respondToSwitch(notificationId: string, decision: 'JOIN' | 'STAY'): Promise<any> {
+    const response = await api.post('/teams/respond-switch', { notificationId, decision });
+    return response.data;
+  },
 };
