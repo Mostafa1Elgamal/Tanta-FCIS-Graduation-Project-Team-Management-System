@@ -110,7 +110,7 @@ export default function DashboardPage() {
                   <Link href={`/teams/${myTeam._id}`} className="flex-1">
                     <Button variant="secondary" className="w-full">View Team Page</Button>
                   </Link>
-                  {myTeam.leaderId === user?.id && (
+                  {(typeof myTeam.leaderId === 'string' ? myTeam.leaderId === user?._id : myTeam.leaderId._id === user?._id) && (
                     <Link href={`/teams/${myTeam._id}/edit`} className="flex-1">
                       <Button variant="outline" className="w-full text-[#c9d1d9]">Settings</Button>
                     </Link>
