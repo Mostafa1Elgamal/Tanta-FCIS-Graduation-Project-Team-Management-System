@@ -18,9 +18,8 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
+app.use(cors({ origin: process.env.CLIENT_URL }))app.use(express.json());
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Rate limiting
 const limiter = rateLimit({

@@ -14,7 +14,7 @@ router.get('/', teamController.getAllTeams);
 router.get('/:id', teamController.getTeam);
 router.put('/:id', validate(updateTeamSchema), teamController.updateTeam);
 router.delete('/:id', teamController.deleteTeam);
-router.post('/:id/members', teamController.addMember);
 router.post('/respond-switch', teamController.respondToSwitch);
+router.post('/:id/members', teamController.addMember);
 
 module.exports = router;

@@ -9,7 +9,7 @@ exports.getAllUsers = async (req, res, next) => {
     if (track) query.tracks = track;
     if (department) query.department = department;
 
-    const users = await User.find(query);
+    const users = await User.find(query).select('-isBanned -bannedAt');
 
     res.status(200).json({
       status: 'success',
@@ -42,10 +42,8 @@ exports.getUser = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     // 1) Filter out unwanted fields that are not allowed to be updated
-    const filteredBody = { ...req.body };
-    delete filteredBody.password;
-    delete filteredBody.role;
-    delete filteredBody.email;
+    const { name, phoneNumber, department, tracks, skills, bio } = req.body;
+const filteredBody = { name, phoneNumber, department, tracks, skills, bio };
 
     // 2) Update user document
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
