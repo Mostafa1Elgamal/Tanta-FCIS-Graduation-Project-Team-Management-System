@@ -26,15 +26,7 @@ const teamSchema = z.object({
   })).min(1, 'At least one required track is needed'),
 });
 
-interface TeamFormValues {
-  title: string;
-  description: string;
-  totalSize: number;
-  requiredTracks: {
-    track: string;
-    neededCount: number;
-  }[];
-}
+type TeamFormValues = z.infer<typeof teamSchema>;
 
 const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
 

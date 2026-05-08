@@ -50,6 +50,13 @@ exports.login = async (req, res, next) => {
       return next(error);
     }
 
+    // 2.5) Check if user is banned
+    if (user.isBanned) {
+      const error = new Error('Your account has been suspended. Please contact support.');
+      error.statusCode = 403;
+      return next(error);
+    }
+
     // 3) If everything ok, send token to client
     createSendToken(user, 200, res);
   } catch (err) {
