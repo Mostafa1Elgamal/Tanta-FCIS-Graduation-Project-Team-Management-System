@@ -3,19 +3,19 @@ const mongoSanitize = require('express-mongo-sanitize');
 const validate = (schema) => (req, res, next) => {
   try {
     // 1) Sanitize all inputs to prevent NoSQL Injection
-    // mongoSanitize.sanitize(req.body);
-    // mongoSanitize.sanitize(req.query);
-    // mongoSanitize.sanitize(req.params);
+    mongoSanitize.sanitize(req.body);
+    mongoSanitize.sanitize(req.query);
+    mongoSanitize.sanitize(req.params);
 
     // 2) Validate with Zod
-    schema.parse({
+    const parsed = schema.parse({
       body: req.body,
       query: req.query,
       params: req.params,
     });
 
     // 3) Replace req.body with validated data (Mass Assignment Protection)
-    // req.body = parsed.body;
+    req.body = parsed.body;
     
     next();
   } catch (err) {
