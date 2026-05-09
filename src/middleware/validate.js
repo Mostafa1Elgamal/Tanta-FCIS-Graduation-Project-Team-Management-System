@@ -1,18 +1,24 @@
+const mongoSanitize = require('express-mongo-sanitize');
+
 const validate = (schema) => (req, res, next) => {
   try {
+    // 1) Sanitize all inputs to prevent NoSQL Injection
+    req.body = mongoSanitize.sanitize(req.body);
+    // Note: We don't overwrite req.query/params because they are getters in Express 5
+    // but we can sanitize the values inside them
+    mongoSanitize.sanitize(req.query);
+    mongoSanitize.sanitize(req.params);
+
+    // 2) Validate with Zod
     const parsed = schema.parse({
       body: req.body,
       query: req.query,
       params: req.params,
     });
 
-    // Replace request body with validated data (Mass Assignment Protection)
-    // We only overwrite req.body as req.query and req.params are often read-only getters in Express
-    // req.body = parsed.body;
+    // 3) Replace req.body with validated data (Mass Assignment Protection)
+    req.body = parsed.body;
     
-    // If you need to strip query/params, it's safer to do it in the controller or 
-    // by individual key deletion if necessary.
-
     next();
   } catch (err) {
     const firstError = err.errors[0];

@@ -23,7 +23,14 @@ const app = express();
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || '*' }))
 app.use(express.json());
-// app.use(mongoSanitize());
+// Global Sanitization (Safe for Express 5)
+app.use((req, res, next) => {
+  mongoSanitize.sanitize(req.body);
+  mongoSanitize.sanitize(req.query);
+  mongoSanitize.sanitize(req.params);
+  next();
+});
+
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Rate limiting
