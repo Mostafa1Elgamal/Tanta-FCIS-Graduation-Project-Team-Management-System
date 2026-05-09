@@ -6,6 +6,8 @@ const { Server } = require('socket.io');
 const PORT = process.env.PORT || 5000;
 
 // Create server FIRST
+console.log("PORT from env:", process.env.PORT);
+
 const server = http.createServer(app);
 
 // Socket.io Setup
