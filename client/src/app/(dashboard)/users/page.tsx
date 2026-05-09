@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
@@ -72,7 +73,9 @@ export default function UsersPage() {
                       {Math.round(match.score)}% Match
                     </Badge>
                   </div>
-                  <h3 className="text-sm font-bold text-[#c9d1d9] mb-1">{match.item.name}</h3>
+                  <Link href={`/users/${match.item._id}`}>
+                    <h3 className="text-sm font-bold text-[#c9d1d9] mb-1 hover:underline cursor-pointer">{match.item.name}</h3>
+                  </Link>
                   <div className="flex flex-wrap gap-1 mb-3">
                     {match.item.tracks.slice(0, 2).map(track => (
                       <Badge key={track} variant="secondary" className="text-[9px] bg-[#161b22] border-border">{track}</Badge>
@@ -134,9 +137,11 @@ export default function UsersPage() {
                       <div className="h-6 w-6 rounded-full bg-[#30363d] flex items-center justify-center font-bold text-[#c9d1d9] text-[10px]">
                         {student.name.charAt(0)}
                       </div>
-                      <h3 className="text-base font-bold text-[#58a6ff] hover:underline cursor-pointer">
-                        {student.name}
-                      </h3>
+                      <Link href={`/users/${student._id}`}>
+                        <h3 className="text-base font-bold text-[#58a6ff] hover:underline cursor-pointer">
+                          {student.name}
+                        </h3>
+                      </Link>
                       <div className="flex gap-1">
                         {student.tracks.map(track => (
                           <Badge key={track} variant="outline" className="text-[10px] border-border">{track}</Badge>

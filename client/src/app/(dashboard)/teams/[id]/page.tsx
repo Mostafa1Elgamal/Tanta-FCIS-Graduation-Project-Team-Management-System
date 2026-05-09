@@ -91,7 +91,9 @@ export default function TeamDetailsPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-xl font-semibold text-[#58a6ff]">
             <Users size={24} className="text-[#8b949e]" />
-            <span className="hover:underline cursor-default">{leader?.name || 'User'}</span>
+            <Link href={`/users/${leader?._id}`}>
+              <span className="hover:underline cursor-pointer">{leader?.name || 'User'}</span>
+            </Link>
             <span className="text-[#8b949e] font-normal">/</span>
             <span className="text-[#c9d1d9] font-bold">{team.title}</span>
             <Badge variant={team.status === 'COMPLETE' ? 'secondary' : 'outline'} className="ml-2 bg-[#161b22] text-[#8b949e] border-border text-[10px]">
@@ -143,10 +145,10 @@ export default function TeamDetailsPage() {
                     <div className="h-8 w-8 rounded-full bg-[#30363d] flex items-center justify-center font-bold text-[#c9d1d9] text-xs">
                       {memberUser.name.charAt(0)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold text-[#c9d1d9] truncate">{memberUser.name}</h4>
+                    <Link href={`/users/${memberUser._id}`} className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-[#c9d1d9] truncate hover:text-[#58a6ff] hover:underline cursor-pointer">{memberUser.name}</h4>
                       <p className="text-[10px] text-[#8b949e] uppercase tracking-wider">{memberUser.tracks?.[0] || member.role}</p>
-                    </div>
+                    </Link>
                     {memberUser._id === leader?._id && (
                       <Badge variant="outline" className="text-[8px] border-[#d29922] text-[#d29922]">LEADER</Badge>
                     )}
