@@ -8,7 +8,7 @@ const validate = (schema) => (req, res, next) => {
 
     // Replace request body with validated data (Mass Assignment Protection)
     // We only overwrite req.body as req.query and req.params are often read-only getters in Express
-    req.body = parsed.body;
+    // req.body = parsed.body;
     
     // If you need to strip query/params, it's safer to do it in the controller or 
     // by individual key deletion if necessary.
