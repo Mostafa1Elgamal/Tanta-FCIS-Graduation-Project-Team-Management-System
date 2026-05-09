@@ -20,11 +20,13 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 export default function UserProfilePage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
 
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['user', id],
-    queryFn: () => userService.getUser(id as string),
+    queryFn: () => userService.getUser(id),
+    enabled: !!id,
   });
 
   if (isLoading) {
