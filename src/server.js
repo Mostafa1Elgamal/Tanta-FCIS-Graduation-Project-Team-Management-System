@@ -3,17 +3,9 @@ const app = require('./app');
 const connectDB = require('./config/db');
 const { Server } = require('socket.io');
 
-// Connect to Database
-connectDB()
-  .then(() => {
-    server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error("DB connection failed:", err);
-  });
+const PORT = process.env.PORT || 5000;
 
+// Create server FIRST
 const server = http.createServer(app);
 
 // Socket.io Setup
@@ -24,13 +16,11 @@ const io = new Server(server, {
   }
 });
 
-// Socket connection handling
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
   socket.on('join', (userId) => {
     socket.join(userId);
-    console.log(`User ${userId} joined their notification room`);
   });
 
   socket.on('disconnect', () => {
@@ -38,11 +28,15 @@ io.on('connection', (socket) => {
   });
 });
 
-// Make io accessible to routes
 app.set('io', io);
 
-const PORT = process.env.PORT || 5000;
-
-server.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+// Connect DB THEN start server (مرة واحدة بس)
+connectDB()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("DB connection failed:", err);
+  });

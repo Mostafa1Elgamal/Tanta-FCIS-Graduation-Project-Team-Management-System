@@ -22,8 +22,8 @@ const connectDB = async () => {
       }
     }
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    res.json(`DB Error: ${ error.message} `);
+    console.error(`DB Error: ${error.message}`);
+    process.exit(1);
   }
 };
 
