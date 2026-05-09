@@ -26,7 +26,22 @@ const loginSchema = z.object({
   })
 });
 
+const updateProfileSchema = z.object({
+  body: z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+    phoneNumber: z.string()
+      .regex(/^\+[1-9]\d{9,14}$/, 'Phone must be in international format (e.g. +20...)')
+      .optional(),
+    department: z.string().min(2, 'Department is required').optional(),
+    email: z.string().email().optional().or(z.literal('')),
+    tracks: z.array(z.string()).optional(),
+    skills: z.array(z.string()).optional(),
+    bio: z.string().max(500).optional(),
+  })
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
+  updateProfileSchema,
 };

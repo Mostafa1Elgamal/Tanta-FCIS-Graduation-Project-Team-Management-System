@@ -35,7 +35,23 @@ const updateTeamSchema = z.object({
   })
 });
 
+const respondToSwitchSchema = z.object({
+  body: z.object({
+    notificationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid notification ID'),
+    decision: z.enum(['JOIN', 'STAY'], { errorMap: () => ({ message: "Decision must be JOIN or STAY" }) })
+  })
+});
+
+const addMemberSchema = z.object({
+  body: z.object({
+    phoneNumber: z.string().regex(/^\+[1-9]\d{9,14}$/, 'Invalid phone number format'),
+    role: z.string().optional()
+  })
+});
+
 module.exports = {
   createTeamSchema,
   updateTeamSchema,
+  respondToSwitchSchema,
+  addMemberSchema,
 };
