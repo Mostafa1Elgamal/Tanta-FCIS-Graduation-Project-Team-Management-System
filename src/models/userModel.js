@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   },
   tracks: [{
     type: String,
-    enum: ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Analysis']
+    enum: ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing']
   }],
   skills: [String],
   bio: {

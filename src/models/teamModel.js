@@ -46,7 +46,7 @@ const teamSchema = new mongoose.Schema({
   requiredTracks: [{
     track: {
       type: String,
-      enum: ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Analysis'],
+      enum: ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'],
       required: true
     },
     neededCount: {
