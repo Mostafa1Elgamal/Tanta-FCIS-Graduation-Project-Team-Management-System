@@ -27,7 +27,7 @@ const requestSchema = new mongoose.Schema({
   },
   track: {
     type: String,
-    enum: ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud']
+    enum: ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Analysis', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing']
   },
   message: String,
   createdAt: {

@@ -29,7 +29,7 @@ const teamSchema = z.object({
 
 type TeamFormValues = z.infer<typeof teamSchema>;
 
-const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
+const AVAILABLE_TRACKS = ['Frontend', 'Backend', 'AI', 'Mobile', 'UI/UX', 'Cybersecurity', 'Cloud', 'Data Analysis', 'Data Science', 'Machine Learning', 'Embedded Systems', 'Game Development', 'DevOps', 'Blockchain', 'Software Testing'];
 
 export default function EditTeamPage() {
   const { id } = useParams();
