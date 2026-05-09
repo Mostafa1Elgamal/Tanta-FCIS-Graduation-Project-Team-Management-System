@@ -6,10 +6,12 @@ const validate = (schema) => (req, res, next) => {
       params: req.params,
     });
 
-    // Replace request data with validated data to strip extra/unwanted fields (Mass Assignment Protection)
+    // Replace request body with validated data (Mass Assignment Protection)
+    // We only overwrite req.body as req.query and req.params are often read-only getters in Express
     req.body = parsed.body;
-    req.query = parsed.query;
-    req.params = parsed.params;
+    
+    // If you need to strip query/params, it's safer to do it in the controller or 
+    // by individual key deletion if necessary.
 
     next();
   } catch (err) {
