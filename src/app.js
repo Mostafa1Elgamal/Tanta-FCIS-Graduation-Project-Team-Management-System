@@ -27,6 +27,13 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
 });
+// Base route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Welcome to Tanta FCIS Graduation Project Team Management System API'
+  });
+});
 app.use('/api', limiter);
 
 // Routes
@@ -37,13 +44,6 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/matching', matchingRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Base route
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'Welcome to Tanta FCIS Graduation Project Team Management System API'
-  });
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
