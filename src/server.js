@@ -4,7 +4,15 @@ const connectDB = require('./config/db');
 const { Server } = require('socket.io');
 
 // Connect to Database
-connectDB();
+connectDB()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("DB connection failed:", err);
+  });
 
 const server = http.createServer(app);
 
