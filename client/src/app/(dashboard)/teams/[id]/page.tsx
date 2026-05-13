@@ -56,8 +56,11 @@ export default function TeamDetailsPage() {
     }
   });
 
-  const handleRemoveMember = (memberId: string) => {
-    if (confirm('Are you sure you want to remove this member?')) {
+  const handleRemoveMember = (e: React.MouseEvent, memberId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to remove this member?')) {
+      console.log('Removing member:', memberId);
       removeMemberMutation.mutate(memberId);
     }
   };
@@ -106,7 +109,7 @@ export default function TeamDetailsPage() {
               variant="outline" 
               size="sm" 
               className="text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-500" 
-              onClick={() => handleRemoveMember(user!._id)} 
+              onClick={(e) => handleRemoveMember(e, user!._id)} 
               disabled={removeMemberMutation.isPending}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -187,7 +190,7 @@ export default function TeamDetailsPage() {
                         variant="ghost"
                         size="icon"
                         className="text-red-500 hover:text-red-600 hover:bg-red-500/10 ml-auto h-8 w-8"
-                        onClick={() => handleRemoveMember(memberUser._id)}
+                        onClick={(e) => handleRemoveMember(e, memberUser._id)}
                         disabled={removeMemberMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4" />
