@@ -128,21 +128,9 @@ export default function EditTeamPage() {
     if (!memberPhone) return;
     addMemberMutation.mutate();
   };
-  const handleRemove = async (memberId: string) => {
-    try {
-      await axios.delete(`/api/team/${team._id}/members/${memberId}`);
-
-      // تحديث الـ UI فورًا (optimistic update)
-      setTeam((prev: any) => ({
-        ...prev,
-        members: prev.members.filter((m: any) => {
-          const id = typeof m.userId === 'string' ? m.userId : m.userId._id;
-          return id !== memberId;
-        })
-      }));
-
-    } catch (err) {
-      console.error(err);
+  const handleRemove = (memberId: string) => {
+    if (window.confirm('Are you sure you want to remove this member?')) {
+      removeMemberMutation.mutate(memberId);
     }
   };
 
