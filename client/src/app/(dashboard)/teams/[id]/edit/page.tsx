@@ -109,10 +109,41 @@ export default function EditTeamPage() {
     },
   });
 
+  const removeMemberMutation = useMutation({
+    mutationFn: (memberId: string) => 
+      teamService.removeMember(teamId, memberId),
+
+    onSuccess: () => {
+      toast.success('Member removed successfully!');
+      queryClient.invalidateQueries({ queryKey: ['team', teamId] });
+    },
+
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to remove member');
+    }
+  });
+
   const handleAddMember = (e: React.FormEvent) => {
     e.preventDefault();
     if (!memberPhone) return;
     addMemberMutation.mutate();
+  };
+  const handleRemove = async (memberId: string) => {
+    try {
+      await axios.delete(`/api/team/${team._id}/members/${memberId}`);
+
+      // تحديث الـ UI فورًا (optimistic update)
+      setTeam((prev: any) => ({
+        ...prev,
+        members: prev.members.filter((m: any) => {
+          const id = typeof m.userId === 'string' ? m.userId : m.userId._id;
+          return id !== memberId;
+        })
+      }));
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (isLoading) {
@@ -254,7 +285,7 @@ export default function EditTeamPage() {
                       {isLeader ? (
                         <Badge variant="outline" className="text-[8px] border-[#d29922] text-[#d29922]">LEADER</Badge>
                       ) : (
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#8b949e] hover:text-[#f85149]">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#8b949e] hover:text-[#f85149]" onClick={() => {handleRemove(memberId)}}>
                           <XCircle size={16} />
                         </Button>
                       )}

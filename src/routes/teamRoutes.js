@@ -19,6 +19,7 @@ router.get('/', teamController.getAllTeams);
 router.get('/:id', teamController.getTeam);
 router.put('/:id', validate(updateTeamSchema), teamController.updateTeam);
 router.delete('/:id', teamController.deleteTeam);
+router.delete('/:id/members/:memberId', teamController.deleteMember);
 router.post('/respond-switch', validate(respondToSwitchSchema), teamController.respondToSwitch);
 router.post('/:id/members', validate(addMemberSchema), teamController.addMember);
 

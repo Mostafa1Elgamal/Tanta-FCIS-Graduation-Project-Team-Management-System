@@ -241,6 +241,80 @@ exports.addMember = async (req, res, next) => {
   }
 };
 
+exports.deleteMember = async (req, res, next) => {
+  try {
+    const team = await Team.findById(req.params.id);
+    if (!team) {
+      const error = new Error('Team not found');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const memberId = req.params.memberId;
+
+    // Only the leader can remove someone else, or a member can remove themselves
+    if (team.leaderId.toString() !== req.user.id && req.user.id !== memberId) {
+      const error = new Error('Not authorized to remove this member');
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    // Leader cannot remove themselves via this route (they should transfer leadership or delete team)
+    if (team.leaderId.toString() === memberId) {
+      const error = new Error('Leader cannot be removed. Transfer leadership or delete the team instead.');
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const memberIndex = team.members.findIndex(m => m.userId.toString() === memberId);
+    if (memberIndex === -1) {
+      const error = new Error('Member not found in this team');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // Remove member from team
+    team.members.splice(memberIndex, 1);
+    team.currentSize -= 1;
+    await team.save();
+
+    // Update user status
+    await User.findByIdAndUpdate(memberId, {
+      status: 'LOOKING',
+      $unset: { team: "" }
+    });
+
+    const io = req.app.get('io');
+    if (req.user.id === memberId) {
+      // User left
+      await NotificationService.sendNotification(
+        io,
+        team.leaderId,
+        `${req.user.name} has left your team`,
+        'MEMBER_REMOVED',
+        team._id
+      );
+    } else {
+      // Leader removed user
+      const removedUser = await User.findById(memberId);
+      await NotificationService.sendNotification(
+        io,
+        memberId,
+        `You have been removed from team "${team.title}"`,
+        'MEMBER_REMOVED',
+        team._id
+      );
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Member removed successfully'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.respondToSwitch = async (req, res, next) => {
   try {
     const { notificationId, decision } = req.body; // decision: 'JOIN' or 'STAY'

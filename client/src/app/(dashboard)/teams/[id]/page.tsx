@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   Phone,
   ShieldCheck,
-  UserPlus
+  UserPlus,
+  LogOut
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { teamService } from '@/services/team.service';
@@ -43,6 +44,23 @@ export default function TeamDetailsPage() {
       router.push('/dashboard');
     },
   });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (memberId: string) => teamService.removeMember(teamId, memberId),
+    onSuccess: () => {
+      toast.success('Member removed successfully');
+      queryClient.invalidateQueries({ queryKey: ['team', teamId] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to remove member');
+    }
+  });
+
+  const handleRemoveMember = (memberId: string) => {
+    if (confirm('Are you sure you want to remove this member?')) {
+      removeMemberMutation.mutate(memberId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,6 +100,18 @@ export default function TeamDetailsPage() {
                 Settings
               </Button>
             </Link>
+          )}
+          {isMember && !isLeader && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-500" 
+              onClick={() => handleRemoveMember(user!._id)} 
+              disabled={removeMemberMutation.isPending}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Leave Team
+            </Button>
           )}
         </div>
       </div>
@@ -151,6 +181,17 @@ export default function TeamDetailsPage() {
                     </Link>
                     {memberUser._id === leader?._id && (
                       <Badge variant="outline" className="text-[8px] border-[#d29922] text-[#d29922]">LEADER</Badge>
+                    )}
+                    {isLeader && memberUser._id !== leader?._id && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10 ml-auto h-8 w-8"
+                        onClick={() => handleRemoveMember(memberUser._id)}
+                        disabled={removeMemberMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     )}
                   </div>
                 );

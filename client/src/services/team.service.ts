@@ -35,4 +35,8 @@ export const teamService = {
     const response = await api.post('/teams/respond-switch', { notificationId, decision });
     return response.data;
   },
+  async removeMember(teamId: string, memberId: string): Promise<any> {
+    const response = await api.delete(`/teams/${teamId}/members/${memberId}`);
+    return response.data;
+  }
 };
